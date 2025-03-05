@@ -17,7 +17,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
+// #include "Adafruit_ILI9341.h"
 // #include <Adafruit_BMP280.h>
 #include "DHT.h"
 
@@ -58,37 +58,37 @@
 #define echo2Pin  39
 
 
-#define TFT_DC    17
-#define TFT_CS    5
-#define TFT_RST   16
-#define TFT_CLK   18
-#define TFT_MOSI  23
-#define TFT_MISO  19
+// #define TFT_DC    17
+// #define TFT_CS    5
+// #define TFT_RST   16
+// #define TFT_CLK   18
+// #define TFT_MOSI  23
+// #define TFT_MISO  19
 
 //----------------------------------------Defines colors
 // Assign human-readable names to some common 16-bit color values:
-#define BLACK       0x0000
-#define BLUE        0x001F
-#define RED         0xF800
-#define GREEN       0x07E0
-#define CYAN        0x07FF
-#define MAGENTA     0xF81F
-#define YELLOW      0xFFE0
-#define WHITE       0xFFFF
-#define AQUA        0x04FF
-#define ORANGE      0xFD20
-#define DARKORANGE  0xFB60
-#define MAROON      0x7800
-#define BLACKM      0x18E3
-#include <Fonts/FreeSansBold18pt7b.h>
-#include <Fonts/FreeSansBold9pt7b.h> 
+// #define BLACK       0x0000
+// #define BLUE        0x001F
+// #define RED         0xF800
+// #define GREEN       0x07E0
+// #define CYAN        0x07FF
+// #define MAGENTA     0xF81F
+// #define YELLOW      0xFFE0
+// #define WHITE       0xFFFF
+// #define AQUA        0x04FF
+// #define ORANGE      0xFD20
+// #define DARKORANGE  0xFB60
+// #define MAROON      0x7800
+// #define BLACKM      0x18E3
+// #include <Fonts/FreeSansBold18pt7b.h>
+// #include <Fonts/FreeSansBold9pt7b.h> 
 
-#define RED2RED 0
-#define GREEN2GREEN 1
-#define BLUE2BLUE 2
-#define BLUE2RED 3
-#define GREEN2RED 4
-#define RED2GREEN 5
+// #define RED2RED 0
+// #define GREEN2GREEN 1
+// #define BLUE2BLUE 2
+// #define BLUE2RED 3
+// #define GREEN2RED 4
+// #define RED2GREEN 5
 
 
 double h=0;
@@ -183,7 +183,7 @@ void vUpdate( void * pvParameters );
 
 
 /* Initialize class objects*/
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
+// Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 // Adafruit_BMP280 bmp; // use I2C interface
 // Adafruit_Sensor *bmp_temp = bmp.getTemperatureSensor();
 // Adafruit_Sensor *bmp_pressure = bmp.getPressureSensor();
@@ -195,18 +195,18 @@ void setup() {
   /* TFT DISPLAY SET UP */
   dht.begin();
   dht2.begin();
-  tft.begin();
+  // tft.begin();
+  // tft.setRotation(1);
+  // tft.fillScreen(RED); 
   pinMode(trig1Pin, OUTPUT);
   pinMode(echo1Pin, INPUT);
   pinMode(trig2Pin, OUTPUT);
   pinMode(echo2Pin, INPUT);
-  tft.setRotation(1);
 
   LEDS.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
 
 
 
-  tft.fillScreen(RED); 
 
   // bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
   //                 Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
@@ -238,7 +238,7 @@ void loop() {
             radarValue = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
 
            
-            waterheight = 94.5 - radarValue;
+            waterheight = 100 - radarValue;
 
             digitalWrite(trig2Pin, LOW);
             delayMicroseconds(5);
@@ -246,13 +246,13 @@ void loop() {
             delayMicroseconds(10);
             digitalWrite(trig2Pin, LOW);
 
-            duration = pulseIn(echo1Pin, HIGH);
+            duration = pulseIn(echo2Pin, HIGH);
 
 
             radarValue2 = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
 
            
-            fertilizerheight = 94.5 - radarValue;
+            fertilizerheight = 100 - radarValue2;
   vTaskDelay(1000 / portTICK_PERIOD_MS);  
   
 }
@@ -342,72 +342,72 @@ void vUpdate( void * pvParameters )  {
         // Serial.println("C");
 
 
-        //----------------------------------------
-      int xpos = 0, ypos = 5, gap = 4, radius = 52;
-          // Draw a large meter
-          xpos = 320/2 - 150, ypos = 15, gap = 100, radius = 50;
+      //   //----------------------------------------
+      // int xpos = 0, ypos = 5, gap = 4, radius = 52;
+      //     // Draw a large meter
+      //     xpos = 320/2 - 150, ypos = 15, gap = 100, radius = 50;
           
-          ringMeter( t,0,90, 0,0,radius,"TEMPERATURE",4 ); // Draw analogue meter
+      //     ringMeter( t,0,90, 0,0,radius,"TEMPERATURE",4 ); // Draw analogue meter
 
-          ringMeter( hi,0,90, 108,0,radius,"HEAT INDEX",4 ); // Draw analogue meter
+      //     ringMeter( hi,0,90, 108,0,radius,"HEAT INDEX",4 ); // Draw analogue meter
 
-          ringMeter(h,0,100, 215,0,radius,"HUMIDITY",4 ); // Draw analogue meter
+      //     ringMeter(h,0,100, 215,0,radius,"HUMIDITY",4 ); // Draw analogue meter
           
-          ringMeter(soilmoisturepercent,0,99, 0,120,radius,"SOIL MOISTURE",4 ); // Draw analogue meter
+      //     ringMeter(soilmoisturepercent,0,99, 0,120,radius,"SOIL MOISTURE",4 ); // Draw analogue meter
           
-          ringMeter(waterheight ,0,99, 108,120,radius,"WATER LEVEL",4 ); // Draw analogue meter
+      //     ringMeter(waterheight ,0,99, 108,120,radius,"WATER LEVEL",4 ); // Draw analogue meter
 
-          ringMeter(fertilizerheight ,0,99, 215,120,radius,"FERTILIZER",4 ); // Draw analogue meter
+      //     ringMeter(fertilizerheight ,0,99, 215,120,radius,"FERTILIZER",4 ); // Draw analogue meter
 
         
 
-        tft.setCursor (247, 90); // Print the Humidity
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (h, 1);
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (" % ");
-        tesmod = 1;
+      //   tft.setCursor (247, 90); // Print the Humidity
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (h, 1);
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (" % ");
+      //   tesmod = 1;
 
-        tft.setCursor (138, 210); // Print the Humidity
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (waterheight, 1);
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (" % ");
+      //   tft.setCursor (138, 210); // Print the Humidity
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (waterheight, 1);
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (" % ");
 
-        tft.setCursor (133, 90); // Print the Humidity
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print ("( Feels Like )");
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
+      //   tft.setCursor (133, 90); // Print the Humidity
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print ("( Feels Like )");
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
       
-        tft.setCursor (33, 90); // Print the Humidity
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (t, 1);
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (" *C ");
+      //   tft.setCursor (33, 90); // Print the Humidity
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (t, 1);
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (" *C ");
 
-        tft.setCursor (33, 210); // Print the Humidity
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (soilmoisturepercent, 1);
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (" %   ");
+      //   tft.setCursor (33, 210); // Print the Humidity
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (soilmoisturepercent, 1);
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (" %   ");
 
-        tft.setCursor (247, 210); // Print the Humidity
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (fertilizerheight, 1);
-        tft.setTextSize (1);
-        tft.setTextColor (GREEN, RED);
-        tft.print (" %  ");
+      //   tft.setCursor (247, 210); // Print the Humidity
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (fertilizerheight, 1);
+      //   tft.setTextSize (1);
+      //   tft.setTextColor (GREEN, RED);
+      //   tft.print (" %  ");
 
    
       if(isNumber(t)){
@@ -425,7 +425,7 @@ void vUpdate( void * pvParameters )  {
               doc["humidity"] =  round( average(h, h2) * 100) / 100.0;
               doc["heatindex"] =  round( average(hi, hi2) * 100) / 100.0;
               doc["water"] = percentage(waterheight);
-              doc["ferterlizer"] = percentage(waterheight);
+              doc["ferterlizer"] = percentage(fertilizerheight);
               doc["soilmoisture"] = round(((soilmoisturepercent + soilmoisturepercent2)/2) * 100) / 100.0;
              
     
@@ -532,96 +532,96 @@ bool publish(const char *topic, const char *payload){
 
 //========================================================================
 
-void ringMeter(int value, int vmin, int vmax, int x, int y, int r, char *units, byte scheme)
-{
-  // Minimum value of r is about 52 before value text intrudes on ring
-  // drawing the text first is an option
+// void ringMeter(int value, int vmin, int vmax, int x, int y, int r, char *units, byte scheme)
+// {
+//   // Minimum value of r is about 52 before value text intrudes on ring
+//   // drawing the text first is an option
   
-  x += r; y += r;   // Calculate coords of centre of ring
-  int w = r / 3;    // Width of outer ring is 1/4 of radius 
-  int angle = 150;  // Half the sweep angle of meter (300 degrees)
-  int v = map(value, vmin, vmax, -angle, angle); // Map the value to an angle v
-  byte seg = 3; // Segments are 3 degrees wide = 100 segments for 300 degrees
-  byte inc = 6; // Draw segments every 3 degrees, increase to 6 for segmented ring
-  // Variable to save "value" text colour from scheme and set default
-  int colour = GREEN;
+//   x += r; y += r;   // Calculate coords of centre of ring
+//   int w = r / 3;    // Width of outer ring is 1/4 of radius 
+//   int angle = 150;  // Half the sweep angle of meter (300 degrees)
+//   int v = map(value, vmin, vmax, -angle, angle); // Map the value to an angle v
+//   byte seg = 3; // Segments are 3 degrees wide = 100 segments for 300 degrees
+//   byte inc = 6; // Draw segments every 3 degrees, increase to 6 for segmented ring
+//   // Variable to save "value" text colour from scheme and set default
+//   int colour = GREEN;
  
-  // Draw colour blocks every inc degrees
-  for (int i = -angle+inc/2; i < angle-inc/2; i += inc) {
-    // Calculate pair of coordinates for segment start
-    float sx = cos((i - 90) * 0.0174532925);
-    float sy = sin((i - 90) * 0.0174532925);
-    uint16_t x0 = sx * (r - w) + x;
-    uint16_t y0 = sy * (r - w) + y;
-    uint16_t x1 = sx * r + x;
-    uint16_t y1 = sy * r + y;
+//   // Draw colour blocks every inc degrees
+//   for (int i = -angle+inc/2; i < angle-inc/2; i += inc) {
+//     // Calculate pair of coordinates for segment start
+//     float sx = cos((i - 90) * 0.0174532925);
+//     float sy = sin((i - 90) * 0.0174532925);
+//     uint16_t x0 = sx * (r - w) + x;
+//     uint16_t y0 = sy * (r - w) + y;
+//     uint16_t x1 = sx * r + x;
+//     uint16_t y1 = sy * r + y;
 
-    // Calculate pair of coordinates for segment end
-    float sx2 = cos((i + seg - 90) * 0.0174532925);
-    float sy2 = sin((i + seg - 90) * 0.0174532925);
-    int x2 = sx2 * (r - w) + x;
-    int y2 = sy2 * (r - w) + y;
-    int x3 = sx2 * r + x;
-    int y3 = sy2 * r + y;
+//     // Calculate pair of coordinates for segment end
+//     float sx2 = cos((i + seg - 90) * 0.0174532925);
+//     float sy2 = sin((i + seg - 90) * 0.0174532925);
+//     int x2 = sx2 * (r - w) + x;
+//     int y2 = sy2 * (r - w) + y;
+//     int x3 = sx2 * r + x;
+//     int y3 = sy2 * r + y;
 
-    if (i < v) { // Fill in coloured segments with 2 triangles
-      switch (scheme) {
-        case 0: colour = GREEN; break; // Fixed colour
-        case 1: colour = RED; break; // Fixed colour
-        case 2: colour = BLUE; break; // Fixed colour
-        case 3: colour = rainbow(map(i, -angle, angle, 0, 127)); break; // Full spectrum blue to red
-        case 4: colour = rainbow(map(i, -angle, angle, 70, 127)); break; // Green to red (high temperature etc)
-        case 5: colour = rainbow(map(i, -angle, angle, 127, 63)); break; // Red to green (low battery etc)
-        default: colour = GREEN; break; // Fixed colour
-      }
-      tft.fillTriangle(x0, y0, x1, y1, x2, y2, colour);
-      tft.fillTriangle(x1, y1, x2, y2, x3, y3, colour);
-      //text_colour = colour; // Save the last colour drawn
-    }
-    else // Fill in blank segments
-    {
-      tft.fillTriangle(x0, y0, x1, y1, x2, y2, RED);
-      tft.fillTriangle(x1, y1, x2, y2, x3, y3, RED);
-    }
-  }
-  // Convert value to a string
-  char buf[10];
-  byte len = 2; if (value > 99) len = 3;if (value > 999) len = 4;
-  dtostrf(value, len, 0, buf);
-  buf[len] = ' '; buf[len] = 0; // Add blanking space and terminator, helps to centre text too!
-  // Set the text colour to default
-  tft.setTextSize(1);
+//     if (i < v) { // Fill in coloured segments with 2 triangles
+//       switch (scheme) {
+//         case 0: colour = GREEN; break; // Fixed colour
+//         case 1: colour = RED; break; // Fixed colour
+//         case 2: colour = BLUE; break; // Fixed colour
+//         case 3: colour = rainbow(map(i, -angle, angle, 0, 127)); break; // Full spectrum blue to red
+//         case 4: colour = rainbow(map(i, -angle, angle, 70, 127)); break; // Green to red (high temperature etc)
+//         case 5: colour = rainbow(map(i, -angle, angle, 127, 63)); break; // Red to green (low battery etc)
+//         default: colour = GREEN; break; // Fixed colour
+//       }
+//       tft.fillTriangle(x0, y0, x1, y1, x2, y2, colour);
+//       tft.fillTriangle(x1, y1, x2, y2, x3, y3, colour);
+//       //text_colour = colour; // Save the last colour drawn
+//     }
+//     else // Fill in blank segments
+//     {
+//       tft.fillTriangle(x0, y0, x1, y1, x2, y2, RED);
+//       tft.fillTriangle(x1, y1, x2, y2, x3, y3, RED);
+//     }
+//   }
+//   // Convert value to a string
+//   char buf[10];
+//   byte len = 2; if (value > 99) len = 3;if (value > 999) len = 4;
+//   dtostrf(value, len, 0, buf);
+//   buf[len] = ' '; buf[len] = 0; // Add blanking space and terminator, helps to centre text too!
+//   // Set the text colour to default
+//   tft.setTextSize(1);
 
-  if(value>9){
-  tft.setTextColor(CYAN,RED);
-  tft.setCursor(x-25,y-10);tft.setTextSize(3);
-  tft.print(buf);}
-  if(value==100){
-  dtostrf(value, 3, 0, buf);
-  buf[3] = ' '; buf[3] = 0; // Add blanking space and terminator, helps to centre text too!
-  // Set the text colour to default
-  tft.setTextColor(ORANGE,RED);
-  tft.setCursor(x-25,y-10);tft.setTextSize(3);
-  tft.print(buf);
-  delay(1000);
-  tft.setTextColor(RED,RED);
-  tft.setCursor(x-25,y-10);tft.setTextSize(3);
-  tft.print(buf);
-  }
-  else if(value<10){
-  tft.setTextColor(colour,RED);
-  tft.setCursor(x-25,y-10);tft.setTextSize(3);
-  tft.print(buf);}
+//   if(value>9){
+//   tft.setTextColor(CYAN,RED);
+//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
+//   tft.print(buf);}
+//   if(value==100){
+//   dtostrf(value, 3, 0, buf);
+//   buf[3] = ' '; buf[3] = 0; // Add blanking space and terminator, helps to centre text too!
+//   // Set the text colour to default
+//   tft.setTextColor(ORANGE,RED);
+//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
+//   tft.print(buf);
+//   delay(1000);
+//   tft.setTextColor(RED,RED);
+//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
+//   tft.print(buf);
+//   }
+//   else if(value<10){
+//   tft.setTextColor(colour,RED);
+//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
+//   tft.print(buf);}
 
   
-  tft.setTextColor(CYAN,RED);
+//   tft.setTextColor(CYAN,RED);
   
-  tft.setCursor(x-20,y+55);tft.setTextSize(1);
-  tft.print(units); // Units display
+//   tft.setCursor(x-20,y+55);tft.setTextSize(1);
+//   tft.print(units); // Units display
   
-  // Calculate and return right hand side x coordinate
-  // return x + r;
-}
+//   // Calculate and return right hand side x coordinate
+//   // return x + r;
+// }
 //========================================================================
 
 bool isNumber(double number){       
@@ -634,38 +634,38 @@ bool isNumber(double number){
 
 
 
-unsigned int rainbow(byte value)
-{
-  // Value is expected to be in range 0-127
-  // The value is converted to a spectrum colour from 0 = blue through to 127 = red
+// unsigned int rainbow(byte value)
+// {
+//   // Value is expected to be in range 0-127
+//   // The value is converted to a spectrum colour from 0 = blue through to 127 = red
 
-  byte red = 0; // Red is the top 5 bits of a 16 bit colour value
-  byte green = 0;// Green is the middle 6 bits
-  byte blue = 0; // Blue is the bottom 5 bits
-  byte quadrant = value / 32;
+//   byte red = 0; // Red is the top 5 bits of a 16 bit colour value
+//   byte green = 0;// Green is the middle 6 bits
+//   byte blue = 0; // Blue is the bottom 5 bits
+//   byte quadrant = value / 32;
 
-  if (quadrant == 0) {
-    blue = 31;
-    green = 2 * (value % 32);
-    red = 0;
-  }
-  if (quadrant == 1) {
-    blue = 31 - (value % 32);
-    green = 63;
-    red = 0;
-  }
-  if (quadrant == 2) {
-    blue = 0;
-    green = 63;
-    red = value % 32;
-  }
-  if (quadrant == 3) {
-    blue = 0;
-    green = 63 - 2 * (value % 32);
-    red = 31;
-  }
-  return (red << 11) + (green << 5) + blue;
-}
+//   if (quadrant == 0) {
+//     blue = 31;
+//     green = 2 * (value % 32);
+//     red = 0;
+//   }
+//   if (quadrant == 1) {
+//     blue = 31 - (value % 32);
+//     green = 63;
+//     red = 0;
+//   }
+//   if (quadrant == 2) {
+//     blue = 0;
+//     green = 63;
+//     red = value % 32;
+//   }
+//   if (quadrant == 3) {
+//     blue = 0;
+//     green = 63 - 2 * (value % 32);
+//     red = 31;
+//   }
+//   return (red << 11) + (green << 5) + blue;
+// }
 
 double reserve(int height){
   const double tankDiameter = 61.5; // Diameter of the tank in inches
@@ -683,7 +683,11 @@ double reserve(int height){
 
 int percentage(int radarValue){
 
-    return (radarValue / 77.763) * 100;
+    const int perc = (radarValue / 77.763) * 100;
+    if(perc < 0){
+      return 0;
+    }
+    return perc;
   }
 
 

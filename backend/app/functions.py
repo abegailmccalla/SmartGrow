@@ -80,6 +80,28 @@ class DB:
         else:                  
             return result
         
+    def getCrop(self):
+        '''RETURNS THE CROP DATA'''
+        try:
+            remotedb 	= self.remoteMongo('mongodb://%s:%s@%s:%s' % (self.username, self.password,self.server,self.port), tls=self.tls)
+            result      = list(remotedb.COMP3901.crops.find({"selected":True},{'_id':0}))
+        except Exception as e:
+            msg = str(e)
+            print("getCrop error ",msg)
+        else:
+            return result
+
+    def updateCrop(self,data):
+        '''UPDATES THE SELECTED CROP TO TRUE AND SETS OTHERS TO FALSE'''
+        try:
+            remotedb 	= self.remoteMongo('mongodb://%s:%s@%s:%s' % (self.username, self.password,self.server,self.port), tls=self.tls)
+            result      = remotedb.COMP3901.crops.update_many({"selected": True},{"$set": {"selected":False}})
+            result      = remotedb.COMP3901.crops.update_one({"name":data},{"$set": {"selected":True}})
+        except Exception as e:
+            msg = str(e)
+            print("updateCrop error ",msg)
+        else:
+            return result
 
     def humidityMMAR(self,start, end):
         '''RETURNS MIN, MAX, AVG AND RANGE FOR HUMIDITY. THAT FALLS WITHIN THE START AND END DATE RANGE'''

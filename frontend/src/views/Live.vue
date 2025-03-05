@@ -7,6 +7,13 @@
                     <v-sheet class="d-inline justify-center">
                         <v-row>
                             <v-col>
+                                
+                                <v-card :width="300" :height="50" class="text-secondary" color="surface">
+                                    <v-card-title>
+                                        {{ cropSelected.name }}
+                                    </v-card-title>
+                                    </v-card><br>
+
                                 <v-card :width="300" :height="200" class="text-secondary" color="surface">
                                     <v-card-title>
                                         <v-icon left>mdi-cloud</v-icon>
@@ -16,14 +23,17 @@
                                         <v-row class="d-flex justify-space-between px-4 pa-2">
                                             <span class="label">Temperature</span>
                                             <span class="text-h6">{{ temperature }}</span>
+                                            <span class="text-red">{{ tempDiff }}</span>
                                         </v-row>
                                         <v-row class="d-flex justify-space-between px-4 pa-2">
                                             <span class="label">Humidity</span>
                                             <span class="text-h6">{{ humidity }}</span>
+                                            <span class="text-red">{{ humDiff }}</span>
                                         </v-row>
                                         <v-row class="d-flex justify-space-between px-4 pa-2">
                                             <span class="label">Heat Index</span>
                                             <span class="text-h6">{{ heatindex }}</span>
+                                            <span class="text-red">{{ heatDiff }}</span>
                                         </v-row>
                                     </v-card-text>
                                 </v-card><br>
@@ -105,11 +115,14 @@ import { useMqttStore } from '@/store/mqttStore'; // Import Mqtt Store
 import { storeToRefs } from "pinia";
 import { ref,reactive,watch ,onMounted,onBeforeUnmount,computed } from "vue";  
 import { useRoute ,useRouter } from "vue-router";
+import { useAppStore } from "@/store/appStore";
+import App from '@/App.vue';
  
  
 // VARIABLES
 const router      = useRouter();
 const route       = useRoute();  
+const AppStore = useAppStore();
 const Mqtt = useMqttStore();
 const { payload, payloadTopic } = storeToRefs(Mqtt);
 const mqtt = ref(null);
@@ -136,13 +149,19 @@ const indicatorColor = computed(()=>{
     return `rgba(${led.color.r},${led.color.g},${led.color.b},${led.color.a})`
 });
 
+
 const fertilizerSlider = ref(50);
 const waterSlider = ref(50);
+let tempDiff = reactive({value:0});
+let humDiff = reactive({value:0});
+let heatDiff = reactive({value:0});
+
 
 
 const temperature = computed(()=>{
     if(!!payload.value){
         if(isCelsius){
+            tempDiff = payload.value.temperature - cropSelected.temperature;
             return `${payload.value.temperature.toFixed(2)} °C`;
         }else{
             return `${convertToFahrenheit(payload.value.temperature).toFixed(2)} °F`;
@@ -152,7 +171,9 @@ const temperature = computed(()=>{
 const heatindex = computed(()=>{
     if(!!payload.value){
         if(isCelsius){
+            heatDiff = payload.value.heatindex - cropSelected.heatindex;
             return `${payload.value.heatindex.toFixed(2)} °C`;
+
         }else{
             return `${convertToFahrenheit(payload.value.heatindex).toFixed(2)} °F`;
         }
@@ -160,6 +181,7 @@ const heatindex = computed(()=>{
 });
 const humidity = computed(()=>{
     if(!!payload.value){
+    humDiff = payload.value.humidity - cropSelected.humidity;
     return `${payload.value.humidity.toFixed(2)} %`;
     }
 });
@@ -256,6 +278,24 @@ const CreateCharts = async () => {
                     
 
 };
+
+const cropSelected = reactive({ name: '' });
+const CropData = async () => {
+    // Code to read passcode here
+    
+    const data= await AppStore.getCropData();
+    cropSelected.name = data[0].name;
+    cropSelected.temperature = data[0].temperature;
+    cropSelected.humidity = data[0].humidity;
+    cropSelected.heatindex = data[0].heatindex;
+
+
+    
+    console.log(data);
+    console.log(cropSelected.name);
+    
+};
+CropData();
 
 
 

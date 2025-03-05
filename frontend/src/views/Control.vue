@@ -27,6 +27,14 @@
                     <v-color-picker v-model="led.color"></v-color-picker>
                     
                 </v-col>
+            </v-row><br>
+            <v-row class="rounded-t-lg mb-1 pa-5" align="center" justify="center">
+                <v-col cols="12" align="center">
+                    <v-card class="text-secondary" title="Crop Selection" color="surface" elevation="0">
+                        <v-select class="text-secondary" dense v-model="crops.name" :items="['Tomato', 'Cucumber', 'Pepper', 'Lettuce', 'Spinach', 'Kale', 'Basil', 'Cilantro', 'Parsley', 'Chives']" label="Select Crop" item-text="name" item-value="name" color="secondary" prepend-icon="mdi:mdi-sprout"></v-select>
+                    </v-card>
+                    <v-btn class="text-white" color="primary" :disabled="!crops.name" @click="updateCrop(crops)">Update Crop</v-btn>
+                </v-col>
             </v-row>
 
         </v-sheet>
@@ -48,6 +56,7 @@ more(Highcharts);
 import { useMqttStore } from '@/store/mqttStore'; // Import Mqtt Store
 // import WeatherWidget from '@/components/WeatherWidget.vue'
 import { storeToRefs } from "pinia";
+import { useAppStore } from "@/store/appStore";
 import { ref,reactive,watch ,onMounted,onBeforeUnmount,computed } from "vue";  
 import { useRoute ,useRouter } from "vue-router";
 
@@ -55,6 +64,7 @@ import { useRoute ,useRouter } from "vue-router";
 const router      = useRouter();
 const route       = useRoute();  
 const Mqtt = useMqttStore();
+const AppStore = useAppStore();
 const { payload, payloadTopic } = storeToRefs(Mqtt);
 const mqtt = ref(null);
 const host = ref("dbs.msjrealtms.com"); // Host Name or IP address
@@ -70,6 +80,8 @@ const colourPreset = reactive({
     "off": { r: 0, g: 0, b: 0, a: 1 }
 
 });
+
+const crops = reactive({name: null});
 
 // FUNCTIONS
 
@@ -102,6 +114,14 @@ onBeforeUnmount(()=>{
     // THIS FUNCTION IS CALLED RIGHT BEFORE THIS COMPONENT IS UNMOUNTED
     Mqtt.unsubcribeAll();
 });
+
+const updateCrop = async (crops) => {
+    const data = await AppStore.updateCropData(crops.name);
+    console.log(crops.name);
+    console.log(data);
+};
+
+
 
 watch(led,(controls)=>{
     clearTimeout(ID);

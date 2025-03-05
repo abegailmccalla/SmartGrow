@@ -1,3 +1,4 @@
+// import { get } from 'core-js/core/dict';
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -220,20 +221,89 @@ export const useAppStore = defineStore('app', () => {
         return []
     }
 
-    // STATES 
-
-
-
-    // ACTIONS
-
-
-    return {
-        // EXPORTS	
-        getAllInRange,
-        getTemperatureMMAR,
-        getHumidityMMAR,
-        getPressureMMAR,
-        getFreqDistro,
-        getSoilMMAR
+    const getCropData = async () => {
+        // FETCH REQUEST WILL TIMEOUT AFTER 20 SECONDS
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const id = setTimeout(() => { controller.abort() }, 60000);
+        const URL = `/api/crop`;
+        try {
+            const response = await fetch(URL, { method: 'GET', signal: signal });
+            if (response.ok) {
+                const data = await response.json();
+                let keys = Object.keys(data);
+                if (keys.includes("status")) {
+                    if (data["status"] == "found") {
+                        console.log(data["data"]);
+                        return data["data"];
+                    }
+                    if (data["status"] == "failed"
+                    ) {
+                        console.log("getCropData returned no data");
+                    }
+        }
     }
+    else {
+        const data = await response.text();
+        console.log(data);
+    }
+}
+catch (err) {
+    console.error('getCropData error: ', err.message);
+}
+return []
+}
+
+const updateCropData = async (cropData) => {
+    // FETCH REQUEST WILL TIMEOUT AFTER 20 SECONDS
+    const controller = new AbortController();
+    const signal = controller.signal;
+    console.log(cropData);
+    const id = setTimeout(() => { controller.abort() }, 60000);
+    const URL = `/api/crop/update/${cropData}`;
+    try {
+        const response = await fetch(URL, { method: 'PUT', signal: signal });
+        if (response.ok) {
+            const data = await response.json();
+            let keys = Object.keys(data);
+            if (keys.includes("status")) {
+                if (data["status"] == "updated") {
+                    console.log(data["data"]);
+                    return data["data"];
+                }
+                if (data["status"] == "failed"
+                ) {
+                    console.log("updateCropData returned no data");
+                }
+            }
+        }
+        else {
+            const data = await response.text();
+            console.log(data);
+        }
+    }
+    catch (err) {
+        console.error('updateCropData error: ', err.message);
+    }
+    return []
+}
+
+// STATES 
+
+
+
+// ACTIONS
+
+
+return {
+    // EXPORTS	
+    getAllInRange,
+    getTemperatureMMAR,
+    getHumidityMMAR,
+    getPressureMMAR,
+    getFreqDistro,
+    getSoilMMAR,
+    getCropData,
+    updateCropData
+}
 }, { persist: true });

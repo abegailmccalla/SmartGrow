@@ -4,7 +4,7 @@
     <VResponsive class="align-center text-center fill-height">
       <VImg height="350" class="mb-5" src="@/assets/iotFarming.svg" />
 
-      <div class="text-body-2 font-weight-light mb-n1">DefCon 4 Presnts</div>
+      <div class="text-body-2 font-weight-light mb-n1">DefCon4 Presents</div>
 
       <h1 class="text-h2 font-weight-bold">Smart Farming Solutions</h1>
       <div class="text-body-1 font-weight-heavy mt-1">Team Members</div><br>

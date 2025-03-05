@@ -137,6 +137,35 @@ def get_freq_distro(variable,start, end):
 
             return jsonify({"status":"not found","data":[]})
 
+@app.route('/api/crop', methods=['GET'])
+def get_crop():
+        '''RETURNS THE CROP DATA'''
+        if request.method == "GET":
+            try:
+                item= mongo.getCrop()
+                if item:
+                    return jsonify({"status":"found","data":item})
+
+            except Exception as e:
+                msg = str(e)
+                print(f"get_all error: f{str(e)}")
+
+            return jsonify({"status":"not found","data":[]})
+
+@app.route('/api/crop/update/<crop>', methods=['PUT'])
+def update_crop(crop):
+    '''UPDATES THE SELECTED CROP TO TRUE AND SETS OTHERS TO FALSE'''
+    if request.method == "PUT":
+        try:
+            item= mongo.updateCrop(crop)
+            if item:
+                return jsonify({"status":"updated","data":item})
+
+        except Exception as e:
+            msg = str(e)
+            print(f"get_all error: f{str(e)}")
+
+        return jsonify({"status":"not found","data":[]})
 
 
 @app.route('/api/file/get/<filename>', methods=['GET']) 
@@ -148,6 +177,7 @@ def get_images(filename):
         
         # FILE DOES NOT EXIST
         return jsonify({"status":"file not found"}), 404
+
 
 
 
