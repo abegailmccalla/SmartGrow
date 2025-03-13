@@ -7,12 +7,6 @@
                     <v-sheet class="d-inline justify-center">
                         <v-row>
                             <v-col>
-                                
-                                <v-card :width="300" :height="50" class="text-secondary" color="surface">
-                                    <v-card-title>
-                                        {{ cropSelected.name }}
-                                    </v-card-title>
-                                    </v-card><br>
 
                                 <v-card :width="300" :height="200" class="text-secondary" color="surface">
                                     <v-card-title>
@@ -56,21 +50,29 @@
                         </v-row>
                     </v-sheet>
                 </v-col>
-                <v-col cols="2">
-                    <v-sheet>
-                        <v-card height="360px" width="175px" elevation="0">
-                            <v-slider class="slider" readonly thumb-label color="blue" v-model="waterSlider" direction="vertical" label="Water Reservoir" track-size="50">
-                            </v-slider>
-                        </v-card>
-                    </v-sheet>
-                </v-col>
-                <v-col cols="2">
-                    <v-sheet>
-                        <v-card height="360px" width="175px" elevation="0">
-                            <v-slider class="slider" readonly thumb-label color="teritiary" v-model="fertilizerSlider" direction="vertical" label="Fertilizer Tray" track-size="50">
-                            </v-slider>
-                        </v-card>
-                    </v-sheet>
+                <v-col cols="4">
+                    <v-row>
+                        <v-col>
+                                <v-card :width="350" :height="70" class="text-secondary" color="onPrimary" elevation="0">
+                                    <v-card-title>{{ cropSelected.name }}</v-card-title>
+                                    <v-card-subtitle>being cultivated</v-card-subtitle>    
+                                </v-card>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col class="d-flex justify-end" cols="6">
+                            <v-card elevation="0">
+                                <v-slider class="slider" readonly thumb-label color="blue" v-model="waterSlider" direction="vertical" label="Water Reservoir" track-size="50">
+                                </v-slider>
+                            </v-card>
+                        </v-col>
+                        <v-col class="d-flex justify-start" cols="6">
+                            <v-card elevation="0">
+                                <v-slider class="slider" readonly thumb-label color="tertiary" v-model="fertilizerSlider" direction="vertical" label="Fertilizer Tray" track-size="50">
+                                </v-slider>
+                            </v-card>
+                        </v-col>
+                    </v-row>
                 </v-col>
                 <v-col cols="4">
                     <figure class="highcharts-figure">
@@ -161,7 +163,7 @@ let heatDiff = reactive({value:0});
 const temperature = computed(()=>{
     if(!!payload.value){
         if(isCelsius){
-            tempDiff = payload.value.temperature - cropSelected.temperature;
+            tempDiff = Math.abs(payload.value.temperature - cropSelected.temperature).toFixed(2);
             return `${payload.value.temperature.toFixed(2)} °C`;
         }else{
             return `${convertToFahrenheit(payload.value.temperature).toFixed(2)} °F`;
@@ -171,7 +173,7 @@ const temperature = computed(()=>{
 const heatindex = computed(()=>{
     if(!!payload.value){
         if(isCelsius){
-            heatDiff = payload.value.heatindex - cropSelected.heatindex;
+            heatDiff = Math.abs(payload.value.heatindex - cropSelected.heatindex).toFixed(2);
             return `${payload.value.heatindex.toFixed(2)} °C`;
 
         }else{
@@ -181,7 +183,7 @@ const heatindex = computed(()=>{
 });
 const humidity = computed(()=>{
     if(!!payload.value){
-    humDiff = payload.value.humidity - cropSelected.humidity;
+    humDiff = Math.abs(payload.value.humidity - cropSelected.humidity).toFixed(2);
     return `${payload.value.humidity.toFixed(2)} %`;
     }
 });
@@ -326,8 +328,8 @@ watch(payload,(data)=> {
         
     soilChart.value.series[0].points[0].update(data.soilmoisture);
 
-    waterSlider.value = data.tank;
-    fertilizerSlider.value = data.tank
+    waterSlider.value = data.water;
+    fertilizerSlider.value = data.fertilizer;
     
    if(isCelsius){
 

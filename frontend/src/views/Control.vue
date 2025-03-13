@@ -71,7 +71,7 @@ const host = ref("dbs.msjrealtms.com"); // Host Name or IP address
 const port = ref(9002); // Port number
 const points = ref(10); 
 const selected = ref([]); // Selected units
-const led = reactive({"brightness":255,"nodes":1,"color":{ r: 45, g: 120, b: 150, a: 1 }});
+const led = reactive({"brightness":255,"nodes":7,"color":{ r: 45, g: 120, b: 150, a: 1 }});
 let timer, ID = 1000;
 const colourPreset = reactive({
     "growth": { r: 255, g: 0, b: 0, a: 1 },

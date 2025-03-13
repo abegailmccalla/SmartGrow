@@ -240,6 +240,9 @@ void loop() {
            
             waterheight = 100 - radarValue;
 
+            Serial.print("Water Level: ");
+            Serial.println(waterheight);
+
             digitalWrite(trig2Pin, LOW);
             delayMicroseconds(5);
             digitalWrite(trig2Pin, HIGH);
@@ -253,6 +256,10 @@ void loop() {
 
            
             fertilizerheight = 100 - radarValue2;
+
+            Serial.print("Fertilizer Level: ");
+            Serial.println(fertilizerheight);
+
   vTaskDelay(1000 / portTICK_PERIOD_MS);  
   
 }
@@ -283,8 +290,14 @@ void vUpdate( void * pvParameters )  {
         soilMoistureValue = analogRead(analogPin);  //put Sensor insert into soil
         soilmoisturepercent = map(soilMoistureValue, AirValue, WaterValue, 0, 100);
 
+        Serial.print("First Soil Moisture: ");
+        Serial.println(soilmoisturepercent);
+
         soilMoistureValue2 = analogRead(analogPin2);  //put Sensor insert into soil
         soilmoisturepercent2 = map(soilMoistureValue2, AirValue, WaterValue, 0, 100);
+
+        Serial.print("Second Soil Moisture: ");
+        Serial.println(soilmoisturepercent2);
 
         // sensors_event_t temp_event, pressure_event;
         // bmp_pressure->getEvent(&pressure_event);
@@ -293,9 +306,23 @@ void vUpdate( void * pvParameters )  {
         t = dht.readTemperature();
         hi = dht.computeHeatIndex(t, h);
 
+        Serial.print("First Temperature: ");
+        Serial.println(t);
+        Serial.print("First Humidity: ");
+        Serial.println(h);
+        Serial.print("First Heat Index: ");
+        Serial.println(hi);
+
         h2 = dht2.readHumidity();
         t2 = dht2.readTemperature();
         hi2 = dht2.computeHeatIndex(t2, h2);
+
+        Serial.print("Second Temperature: ");
+        Serial.println(t2);
+        Serial.print("Second Humidity: ");
+        Serial.println(h2);
+        Serial.print("Second Heat Index: ");
+        Serial.println(hi2);
         // pa = pressure_event.pressure;
 
         // Serial.print(F("Approx air pressure = "));
@@ -425,7 +452,7 @@ void vUpdate( void * pvParameters )  {
               doc["humidity"] =  round( average(h, h2) * 100) / 100.0;
               doc["heatindex"] =  round( average(hi, hi2) * 100) / 100.0;
               doc["water"] = percentage(waterheight);
-              doc["ferterlizer"] = percentage(fertilizerheight);
+              doc["fertilizer"] = percentage(fertilizerheight);
               doc["soilmoisture"] = round(((soilmoisturepercent + soilmoisturepercent2)/2) * 100) / 100.0;
              
     
@@ -687,10 +714,13 @@ int percentage(int radarValue){
     if(perc < 0){
       return 0;
     }
+    if(perc > 100){
+      return 100;
+    }
     return perc;
   }
 
 
-int average(double a, double b){
+double average(double a, double b){
   return (a + b) / 2;
 }

@@ -2,7 +2,7 @@
          <VToolbar flat density="compact" color="surface" height="150" >
             <VContainer fluid>
                 <v-row class="w-100" align="center" justify="center">
-                <v-card-title class="text-h4 text-secondary">Smart Farming</v-card-title>
+                <v-card-title class="text-h4 text-secondary">SmartGrow</v-card-title>
                 </v-row>
                     <VRow align="center" justify="center">
                         <VCol cols="1" align="left" >

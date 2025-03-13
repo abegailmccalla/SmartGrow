@@ -591,10 +591,10 @@
       humidity.avg = humid[0].avg.toFixed(1);
       humidity.range = humid[0].range.toFixed(1);
 
-      pressure.min = air[0].min.toFixed(1);
-      pressure.max = air[0].max.toFixed(1);
-      pressure.avg = air[0].avg.toFixed(1);
-      pressure.range = air[0].range.toFixed(1);
+      // pressure.min = air[0].min.toFixed(1);
+      // pressure.max = air[0].max.toFixed(1);
+      // pressure.avg = air[0].avg.toFixed(1);
+      // pressure.range = air[0].range.toFixed(1);
 
       soilmoisture.min = soil[0].min.toFixed(1);
       soilmoisture.max = soil[0].max.toFixed(1);
@@ -615,12 +615,12 @@
       temperature.range = (temperature.max - temperature.min).toFixed(1);
     }
 
-    if(selected.value.includes("Millimetre of Mercury")){
-      pressure.min = hPascalToMmHg(pressure.min).toFixed(1);
-      pressure.max = hPascalToMmHg(pressure.max).toFixed(1);
-      pressure.avg = hPascalToMmHg(pressure.avg).toFixed(1);
-      pressure.range = (pressure.max - pressure.min).toFixed(1);
-    }
+    // if(selected.value.includes("Millimetre of Mercury")){
+    //   pressure.min = hPascalToMmHg(pressure.min).toFixed(1);
+    //   pressure.max = hPascalToMmHg(pressure.max).toFixed(1);
+    //   pressure.avg = hPascalToMmHg(pressure.avg).toFixed(1);
+    //   pressure.range = (pressure.max - pressure.min).toFixed(1);
+    // }
 
     if(selected.value.includes("Hectopascal")){
       pressure.min = mmHgToHPascal(pressure.min).toFixed(1);
@@ -689,10 +689,10 @@
           x: parseFloat(row.humidity.toFixed(2)),
           y: parseFloat(row.heatindex.toFixed(2)),
         });
-        scatterPoints3.push({
-          x: parseFloat(row.pressure.toFixed(2)),
-          y: parseFloat(row.altitude.toFixed(2)),
-        });
+        // scatterPoints3.push({
+        //   x: parseFloat(row.pressure.toFixed(2)),
+        //   y: parseFloat(row.altitude.toFixed(2)),
+        // });
       });}
       if(selected.value.includes("Fahrenheit")){
         scatterPoints1 = [];
@@ -711,15 +711,15 @@
         });
       }
 
-      if (selected.value.includes("Millimetre of Mercury")){
+      // if (selected.value.includes("Millimetre of Mercury")){
      
-        scatterPoints3 = [];
-        data.forEach((row) => {
-        scatterPoints3.push({
-          x: parseFloat(hPascalToMmHg(row.pressure).toFixed(2)),
-          y: parseFloat(row.altitude.toFixed(2)),
-        });
-      });  }
+      //   scatterPoints3 = [];
+      //   data.forEach((row) => {
+      //   scatterPoints3.push({
+      //     x: parseFloat(hPascalToMmHg(row.pressure).toFixed(2)),
+      //     y: parseFloat(row.altitude.toFixed(2)),
+      //   });
+      // });  }
 
       /*
       if(selected.value.includes("Celsius") || selected.value==[]){
@@ -765,7 +765,7 @@
       // Add data to Temperature and Heat Index chart
       tempHiScat.value.series[0].setData(scatterPoints1);
       humScat.value.series[0].setData(scatterPoints2);
-      ampPresScat.value.series[0].setData(scatterPoints3);
+      // ampPresScat.value.series[0].setData(scatterPoints3);
     }
   };
 
@@ -777,13 +777,13 @@
         return (fahrenheit - 32) * (5 / 9);
       };
 
-  const hPascalToMmHg = (hPascal) => {
-        return hPascal * 0.750061561303;
-      };
+  // const hPascalToMmHg = (hPascal) => {
+  //       return hPascal * 0.750061561303;
+  //     };
 
-  const mmHgToHPascal = (mmHg) => {
-        return mmHg / 0.750061561303;
-      };
+  // const mmHgToHPascal = (mmHg) => {
+  //       return mmHg / 0.750061561303;
+  //     };
 
   const convertData = async () => {
   if(selected.value.includes("Fahrenheit")){
@@ -806,17 +806,17 @@
     humScat.value.yAxis[0].update({labels: { format: '{value} °C' }});
   }
 
-  if(selected.value.includes("Millimetre of Mercury")){
-    isPressure.value = false;
-    ampPresScat.value.xAxis[0].update({title: { text: 'Pressure (mmHg)' , style:{color:'#000000'}}});
-    ampPresScat.value.xAxis[0].update({labels: { format:'{value} mmHg' }});
-  };
+  // if(selected.value.includes("Millimetre of Mercury")){
+  //   isPressure.value = false;
+  //   ampPresScat.value.xAxis[0].update({title: { text: 'Pressure (mmHg)' , style:{color:'#000000'}}});
+  //   ampPresScat.value.xAxis[0].update({labels: { format:'{value} mmHg' }});
+  // };
 
-  if(selected.value.includes("Hectopascal")){
-    isPressure.value = true;
-    ampPresScat.value.xAxis[0].update({title: { text: 'Pressure (hPa)' , style:{color:'#000000'}}});
-    ampPresScat.value.xAxis[0].update({labels: { format:'{value} hPa' }});
-  };
+  // if(selected.value.includes("Hectopascal")){
+  //   isPressure.value = true;
+  //   ampPresScat.value.xAxis[0].update({title: { text: 'Pressure (hPa)' , style:{color:'#000000'}}});
+  //   ampPresScat.value.xAxis[0].update({labels: { format:'{value} hPa' }});
+  // };
   
     updateLineCharts();
     updateCards(false);
