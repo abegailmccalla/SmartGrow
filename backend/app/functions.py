@@ -19,6 +19,7 @@ class DB:
         from urllib import parse
         from urllib.request import  urlopen 
         from bson.objectid import ObjectId  
+        import kaggleCrops
        
       
         self.Config                         = Config
@@ -50,6 +51,12 @@ class DB:
     ####################
     # LAB 2 DATABASE UTIL FUNCTIONS  #
     ####################
+
+    kaggleCrops = kaggleCrops.kaggleCrops()
+
+ 
+        
+
     
     def addUpdate(self,data):
         '''ADD A NEW STORAGE LOCATION TO COLLECTION'''
