@@ -6,46 +6,61 @@
                 <v-col class="d-flex justify-center">
                     <v-sheet class="d-inline justify-center">
                         <v-row>
-                            <v-col>
+                           
+                                
 
-                                <v-card :width="300" :height="200" class="text-secondary" color="surface">
+                            <v-col cols="4" >
+                                
+                                <v-card :width="360" :height="400" class="text-secondary" color="surface">
                                     <v-card-title>
                                         <v-icon left>mdi-cloud</v-icon>
                                         Inside Environment
                                     </v-card-title>
                                     <v-card-text>
                                         <v-row class="d-flex justify-space-between px-4 pa-2">
-                                            <span class="label">Temperature</span>
-                                            <span class="text-h6">{{ temperature }}</span>
-                                            <span class="text-red">{{ tempDiff }}</span>
+                                            <v-card-subtitle class="">MAX</v-card-subtitle>
+                                            <v-card-subtitle class="">MIN</v-card-subtitle>
+                                        </v-row>                                            <!-- <v-card-text>Temperature</v-card-text> -->
+                                        <v-row class="d-flex justify-space-between">
+                                            <v-card-text>Temperature</v-card-text>
+                                            <!-- <span class="label">Temperature</span>
+                                            <span class="text-h6">{{ temperature }}</span> -->
+                                            <!-- <span class="text-red">{{ tempDiff }}</span> -->
                                         </v-row>
-                                        <v-row class="d-flex justify-space-between px-4 pa-2">
-                                            <span class="label">Humidity</span>
-                                            <span class="text-h6">{{ humidity }}</span>
-                                            <span class="text-red">{{ humDiff }}</span>
+                                        <v-row class="d-flex align-center justify-space-between">
+                                            <v-card-text class="text-red">{{ cropSelected.highTemp }} °C</v-card-text>
+                                            <v-card-text class="text-h6">{{ temperature }}</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.lowTemp }} °C</v-card-text>
                                         </v-row>
-                                        <v-row class="d-flex justify-space-between px-4 pa-2">
-                                            <span class="label">Heat Index</span>
-                                            <span class="text-h6">{{ heatindex }}</span>
-                                            <span class="text-red">{{ heatDiff }}</span>
-                                        </v-row>
-                                    </v-card-text>
-                                </v-card><br>
-                            
-                                <v-card :width="300" :height="200" class="text-secondary" color="surface">
-                                    <v-card-title>
-                                       
-                                        Fan Status
-                                    </v-card-title>
-                                    <v-card-text>
-                                        <v-spacer></v-spacer>
-                                        <div class="status-indicator">
-                                            <v-icon size="100" color="primary" class="mdi-spin">mdi-fan</v-icon>
 
-                                        </div>
+                                        <v-row class="d-flex justify-space-between">
+                                            <v-card-text>Humidity</v-card-text>
+
+                                            <!-- <span class="label">Temperature</span>
+                                            <span class="text-h6">{{ temperature }}</span> -->
+                                            <!-- <span class="text-red">{{ tempDiff }}</span> -->
+                                        </v-row>
+                                        <v-row class="d-flex align-center justify-space-between">
+                                            <v-card-text class="text-red">{{ cropSelected.highHumidity }} %</v-card-text>
+                                            <v-card-text class="text-h6">{{ humidity }}</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.lowHumidity }} %</v-card-text>
+                                        </v-row>
+                                        <v-row class="d-flex justify-space-between">
+                                            <v-card-text>Heat Index</v-card-text>
+                                            <!-- <span class="label">Temperature</span>
+                                            <span class="text-h6">{{ temperature }}</span> -->
+                                            <!-- <span class="text-red">{{ tempDiff }}</span> -->
+                                        </v-row>
+                                        <v-row class="d-flex align-center justify-space-between">
+                                            <v-card-text class="text-red">{{ cropSelected.highHeatIndex }} °C</v-card-text>
+                                            <v-card-text class="text-h6">{{ heatindex }}</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.lowHeatIndex }} °C</v-card-text>
+                                        </v-row>
+                                       
                                     </v-card-text>
-                                    <span class="status">{{ fanStatus ? 'Active' : 'Inactive' }}</span>
-                                    </v-card>
+                                        
+                                </v-card>
+                           
                             </v-col>
                         </v-row>
                     </v-sheet>
@@ -97,7 +112,36 @@
                 </v-col>
             </v-row>
         </v-sheet>
+        
     </v-container>
+    <v-sheet class="mb-2" color="surface" align="center" style="position:fixed; top: 59%; right: 30px; transform: translateY(-50%); z-index: 1000;">
+        <v-row class="d-flex justify-center">
+            <v-col cols="12" class="d-flex justify-center">
+                <v-card :width="120" :height="600" class="text-secondary" color="surface">
+                    <v-card-text>
+                        Actuator Status
+                        </v-card-text>
+                    <v-card-text>
+                        <v-row class="d-flex justify-center align-center px-4 pa-5">
+                           <v-card-subtitle class="m-6 p-6">Fan</v-card-subtitle>
+                           <v-icon size="70" color="primary" class="mdi-spin">mdi-fan</v-icon>
+                           <span class="status">{{ fanStatus ? 'Active' : 'Inactive' }}</span>
+                        </v-row>
+                        <v-row class="d-flex justify-center align-center px-4 pa-9">
+                           <v-card-subtitle class="m-6 p-6">Heater</v-card-subtitle>
+                           <v-icon size="70" color="primary">mdi-heat-wave</v-icon>
+                           <span class="status">{{ heaterStatus ? 'Active' : 'Inactive' }}</span>
+                        </v-row>
+                        <v-row class="d-flex justify-center align-center px-4 pa-9">
+                           <v-card-subtitle class="m-6 p-6">Irrigation</v-card-subtitle>
+                           <v-icon size="70" color="primary">mdi-watering-can</v-icon>
+                           <span class="status">{{ pumpStatus ? 'Active' : 'Inactive' }}</span>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-sheet>
 </template>
 
 <script setup>
@@ -141,10 +185,16 @@ const soilChart = ref(null); // Chart object
 const heightChart = ref(null); // Chart object  
 let isCelsius = true; // Temperature units
 const hasSaved = false // Save status
-const fanStatus = ref(true); // Fan status
+
 let moist = ref(10); // soil moisture
 let tankLevel = ref(10); // tank level
 const selected = ref([]); // Selected units
+const actuateMsg = ref({"type":"actuate","fan":false, "pump":false, "heater":false});
+let pumpStatus = false; // Pump status
+let heaterStatus = false; // Heater status
+let fanStatus = false; // Fan status
+
+
 const led = reactive({"brightness":255,"nodes":1,"color":{ r: 45, g: 120, b: 150, a: 1 }});
 let timer, ID = 1000;
 const indicatorColor = computed(()=>{
@@ -187,6 +237,20 @@ const humidity = computed(()=>{
     return `${payload.value.humidity.toFixed(2)} %`;
     }
 });
+
+// const fanStatus = computed(()=>{
+//     if(!!payload.value){
+//         console.log(fanStatus);
+//         return payload.value.temperature > cropSelected.temperature;
+//     }
+//     console.log(fanStatus);
+
+//     return false;
+// });
+
+
+
+
 
 
 
@@ -281,16 +345,21 @@ const CreateCharts = async () => {
 
 };
 
-const cropSelected = reactive({ name: '' });
+const cropSelected = reactive({ name: 'Carrot' });
 const CropData = async () => {
     // Code to read passcode here
     
     const data= await AppStore.getCropData();
-    cropSelected.name = data[0].name;
-    cropSelected.temperature = data[0].temperature;
-    cropSelected.humidity = data[0].humidity;
-    cropSelected.heatindex = data[0].heatindex;
+    console.log(data);
+    cropSelected.name = data[0].name.charAt(0).toUpperCase() + data[0].name.slice(1);
+    cropSelected.lowTemp = data[0].lowest_temperature.toFixed(2);
+    cropSelected.highTemp = data[0].highest_temperature.toFixed(2);
+    cropSelected.lowHumidity = data[0].lowest_humidity.toFixed(2);
+    cropSelected.highHumidity = data[0].highest_humidity.toFixed(2);
+    cropSelected.lowHeatIndex = data[0].lowest_heat_index.toFixed(2);
+    cropSelected.highHeatIndex = data[0].highest_heat_index.toFixed(2);
 
+    
 
     
     console.log(data);
@@ -321,6 +390,23 @@ onBeforeUnmount(()=>{
 
 
 
+// watch(fanStatus,()=> {
+//     if(fanStatus.value){
+//         clearTimeout(ID);
+//         ID = setTimeout(()=>{
+//             const message = JSON.stringify({"type":"actuate","fan":true, "pump":false, "heater":false});
+//             Mqtt.publish("620154701_sub",message); // Publish to a topic subscribed to by the hardware
+//         },1000)
+//     }else{
+//         clearTimeout(ID);
+//         ID = setTimeout(()=>{
+//             const message = JSON.stringify({"type":"actuate","fan":false, "pump":false, "heater":false});
+//             Mqtt.publish("620154701_sub",message); // Publish to a topic subscribed to by the hardware
+//         },1000)
+//     }
+// });
+       
+
 watch(payload,(data)=> {
         if(points.value > 0){ points.value -- ; }
         else{ shift.value = true; }
@@ -330,6 +416,31 @@ watch(payload,(data)=> {
 
     waterSlider.value = data.water;
     fertilizerSlider.value = data.fertilizer;
+
+    if (data.temperature > cropSelected.highTemp) {
+        fanStatus = true;
+        heaterStatus = false;
+    } else if (data.temperature < cropSelected.lowTemp) {
+        fanStatus = false;
+        heaterStatus = true;
+    } else {
+        fanStatus = false;
+        heaterStatus = false;
+    }
+    if (data.soilmoisture < cropSelected.lowHumidity) {
+        pumpStatus = true;
+    } else if (data.soilmoisture > cropSelected.highHumidity) {
+        pumpStatus = false;
+    } else {
+        pumpStatus = false;
+    }
+const newActuateMsg = { "type": "actuate", "fan": fanStatus, "pump": pumpStatus, "heater": heaterStatus };
+if (JSON.stringify(actuateMsg.value) !== JSON.stringify(newActuateMsg)) {
+    actuateMsg.value = newActuateMsg;
+    Mqtt.publish("620154701_sub", JSON.stringify(actuateMsg.value)); // Publish to a topic subscribed to by the hardware
+    console.log("Actuate Message: ", actuateMsg.value);
+}
+
     
    if(isCelsius){
 

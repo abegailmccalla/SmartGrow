@@ -1,6 +1,16 @@
 <template>
     <v-container>
         <v-sheet class="bg-surface mb-6" align="center">
+            <v-row class="rounded-t-lg mb-1 pa-5" align="center" justify="center" variant="outlined">                <v-col cols="9" align="center">
+                    <v-card class="text-secondary" title="Crop Selection" color="surface" elevation="0">
+                        <v-select class="text-secondary" dense v-model="crops.name" :items="['Apple','Banana','Blackgram','Chickpea','Coconut','Coffee','Cotton','Grapes','Jute','Kidneybeans','Lentil','Maize','Mango','Mothbeans','Mungbean','Muskmelon','Orange','Papaya','Pigeonpeas','Pomegranate','Rice','Watermelon']" label="Select Crop" item-text="name" item-value="name" color="secondary" prepend-icon="mdi:mdi-sprout"></v-select>
+                    </v-card>
+                </v-col>
+                <v-col cols="3" class="d-flex justify-end" align="center">
+                    <v-btn class="text-white pa-4 mt-5 px-15" color="primary" :disabled="!crops.name" @click="updateCrop(crops)" size="x-large" rounded="xl" 
+                    >Update Crop</v-btn>
+                </v-col>
+            </v-row>
             <v-row class="pb-2 mb-2" color="surface" rounded="xl" align="center">
                 <v-col align="start">
                     <v-sheet class="rounded-t-lg mb-1 pa-5" elevation="0" max-width="800" width="100%">
@@ -8,16 +18,27 @@
                             <v-slider class="pt-2 bg-surface" append-icon="mdi:mdi-car-light-high" density="compact" thumb-size="16" color="secondary" label="Brightness" direction="horizontal" min="0" max="250" step="10" show-ticks thumb-label="always" v-model="led.brightness"></v-slider>
                             <v-row class="d-flex justify-space-between px-4 pa-4">
                                 <v-col>
-                                    <v-btn rounded="xl" size="x-large" color="red" class="text-white" @click="LightPreference(1)">Growth</v-btn>
+                                    <v-btn rounded="xl" size="x-large" color="red" class="text-white px-5" @click="LightPreference(1)">Growth</v-btn>
                                 </v-col>
                                 <v-col>
-                                    <v-btn rounded="xl" size="x-large" color="orange" class="text-white" @click="LightPreference(2)">Bloom</v-btn>
+                                    <v-btn rounded="xl" size="x-large" color="orange" class="text-white  px-7" @click="LightPreference(2)">Bloom</v-btn>
                                 </v-col>
                                 <v-col>
-                                    <v-btn rounded="xl" size="x-large" color="green" class="text-white" @click="LightPreference(3)">Veg</v-btn>
-                                </v-col>
+                                    <v-btn rounded="xl" size="x-large" color="green" class="text-white px-11" @click="LightPreference(3)">Veg</v-btn>
+                                </v-col><br>
+                                </v-row>
+                            <v-row class="d-flex justify-space-between px-4 pa-4">
                                 <v-col>
-                                    <v-btn rounded="xl" size="x-large" color="grey" class="text-white" @click="LightPreference(4)">Off</v-btn>
+                                    <v-switch 
+                                        v-model="led.nodes" 
+                                        color="secondary" 
+                                        prepend-icon="mdi:mdi-lightbulb"
+                                        thumb-color="secondary" 
+                                        thumb-size="16" 
+                                        class="pt-2" 
+                                        @change="led.nodes ? LightPreference(5) : LightPreference(4)">
+                                    </v-switch>
+                                   
                                 </v-col>
                             </v-row>
                         </v-card>
@@ -28,15 +49,7 @@
                     
                 </v-col>
             </v-row><br>
-            <v-row class="rounded-t-lg mb-1 pa-5" align="center" justify="center">
-                <v-col cols="12" align="center">
-                    <v-card class="text-secondary" title="Crop Selection" color="surface" elevation="0">
-                        <v-select class="text-secondary" dense v-model="crops.name" :items="['Tomato', 'Cucumber', 'Pepper', 'Lettuce', 'Spinach', 'Kale', 'Basil', 'Cilantro', 'Parsley', 'Chives']" label="Select Crop" item-text="name" item-value="name" color="secondary" prepend-icon="mdi:mdi-sprout"></v-select>
-                    </v-card>
-                    <v-btn class="text-white" color="primary" :disabled="!crops.name" @click="updateCrop(crops)">Update Crop</v-btn>
-                </v-col>
-            </v-row>
-
+            
         </v-sheet>
     </v-container>
 </template>
@@ -71,13 +84,14 @@ const host = ref("dbs.msjrealtms.com"); // Host Name or IP address
 const port = ref(9002); // Port number
 const points = ref(10); 
 const selected = ref([]); // Selected units
-const led = reactive({"brightness":255,"nodes":7,"color":{ r: 45, g: 120, b: 150, a: 1 }});
+const led = reactive({"brightness":255,"nodes":7,"color":{ r: 0, g: 0, b: 0, a: 1 }});
 let timer, ID = 1000;
 const colourPreset = reactive({
     "growth": { r: 255, g: 0, b: 0, a: 1 },
     "bloom": { r: 255, g: 200, b: 0, a: 1 },
     "veg": { r: 0, g: 200, b: 0, a: 1 },
-    "off": { r: 0, g: 0, b: 0, a: 1 }
+    "off": { r: 0, g: 0, b: 0, a: 1 },
+    "on": { r: 255, g: 255, b: 255, a: 1 }
 
 });
 
@@ -86,15 +100,14 @@ const crops = reactive({name: null});
 // FUNCTIONS
 
 const LightPreference = (mode) => {
-    if(mode === 1){
-        led.color = colourPreset.growth;
-    }else if(mode === 2){
-        led.color = colourPreset.bloom;
-    }else if(mode === 3){
-        led.color = colourPreset.veg;
-    }else{
-        led.color = colourPreset.off;
-    }
+    const modes = {
+        1: colourPreset.growth,
+        2: colourPreset.bloom,
+        3: colourPreset.veg,
+        4: colourPreset.off,
+        5: colourPreset.on
+    };
+    led.color = modes[mode] || led.color;
     
 };
 
@@ -116,12 +129,16 @@ onBeforeUnmount(()=>{
 });
 
 const updateCrop = async (crops) => {
-    const data = await AppStore.updateCropData(crops.name);
+    const data = await AppStore.updateCropData(crops.name.toLowerCase());
     console.log(crops.name);
     console.log(data);
 };
 
-
+watch(() => led.color, (newColor) => {
+    if (newColor.r !== 0 || newColor.g !== 0 || newColor.b !== 0) {
+        led.nodes = true;
+    }
+}, { deep: true });
 
 watch(led,(controls)=>{
     clearTimeout(ID);

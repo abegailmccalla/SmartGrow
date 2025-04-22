@@ -50,7 +50,7 @@
 
 #define DHTTYPE DHT22 // define the type of sensor
 
-
+#define fanPin 17
 
 #define trig1Pin  2
 #define echo1Pin  36
@@ -102,6 +102,10 @@ double hi2;
 double f=0;
 double pa;
 
+bool fanState = false;
+bool pumpState = false;
+bool heatState = false;
+
 int AirValue = 3999;  //you need to replace this value with Value_1
 int WaterValue = 1999;  //you need to replace this value with Value_2
 int soilMoistureValue = 0;
@@ -133,8 +137,8 @@ static const char* mqtt_server   = "www.yanacreations.com";         // Broker IP
 static uint16_t mqtt_port        = 1883;
 
 // WIFI CREDENTIALS
-const char* ssid       = "ARRIS-34A2" ; // Add your Wi-Fi ssid
-const char* password   = "BPM7EW600194"; // Add your Wi-Fi password 
+const char* ssid       = "MonaConnect" ; // Add your Wi-Fi ssid
+const char* password   = ""; // Add your Wi-Fi password 
 
 
 
@@ -202,6 +206,8 @@ void setup() {
   pinMode(echo1Pin, INPUT);
   pinMode(trig2Pin, OUTPUT);
   pinMode(echo2Pin, INPUT);
+  pinMode(fanPin, OUTPUT);
+  
 
   LEDS.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
 
@@ -284,6 +290,12 @@ void vUpdate( void * pvParameters )  {
     configASSERT( ( ( uint32_t ) pvParameters ) == 1 );    
  
     for( ;; ) {
+
+      if(fanState){
+        digitalWrite(fanPin, HIGH);
+      }else{
+        digitalWrite(fanPin, LOW);
+      }
 
             
 
@@ -510,6 +522,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
   // PROCESS MESSAGE
   const char* type = doc["type"];
 
+  if (strcmp(type, "actuate") == 0) {
+    fanState = doc["fan"];
+    pumpState = doc["pump"];
+    heatState = doc["heater"];
+
+    Serial.println("THE FAN A WORKKKKK");
+    Serial.println(fanState);
+
+  }
+
   if (strcmp(type, "controls") == 0) {
     // 1. EXTRACT ALL PARAMETERS: NODES, RED,GREEN, BLUE, AND BRIGHTNESS FROM JSON OBJECT
     int nodes = doc["leds"];
@@ -555,101 +577,6 @@ bool publish(const char *topic, const char *payload){
   return res;
 }
 
-//========================================================================
-
-//========================================================================
-
-// void ringMeter(int value, int vmin, int vmax, int x, int y, int r, char *units, byte scheme)
-// {
-//   // Minimum value of r is about 52 before value text intrudes on ring
-//   // drawing the text first is an option
-  
-//   x += r; y += r;   // Calculate coords of centre of ring
-//   int w = r / 3;    // Width of outer ring is 1/4 of radius 
-//   int angle = 150;  // Half the sweep angle of meter (300 degrees)
-//   int v = map(value, vmin, vmax, -angle, angle); // Map the value to an angle v
-//   byte seg = 3; // Segments are 3 degrees wide = 100 segments for 300 degrees
-//   byte inc = 6; // Draw segments every 3 degrees, increase to 6 for segmented ring
-//   // Variable to save "value" text colour from scheme and set default
-//   int colour = GREEN;
- 
-//   // Draw colour blocks every inc degrees
-//   for (int i = -angle+inc/2; i < angle-inc/2; i += inc) {
-//     // Calculate pair of coordinates for segment start
-//     float sx = cos((i - 90) * 0.0174532925);
-//     float sy = sin((i - 90) * 0.0174532925);
-//     uint16_t x0 = sx * (r - w) + x;
-//     uint16_t y0 = sy * (r - w) + y;
-//     uint16_t x1 = sx * r + x;
-//     uint16_t y1 = sy * r + y;
-
-//     // Calculate pair of coordinates for segment end
-//     float sx2 = cos((i + seg - 90) * 0.0174532925);
-//     float sy2 = sin((i + seg - 90) * 0.0174532925);
-//     int x2 = sx2 * (r - w) + x;
-//     int y2 = sy2 * (r - w) + y;
-//     int x3 = sx2 * r + x;
-//     int y3 = sy2 * r + y;
-
-//     if (i < v) { // Fill in coloured segments with 2 triangles
-//       switch (scheme) {
-//         case 0: colour = GREEN; break; // Fixed colour
-//         case 1: colour = RED; break; // Fixed colour
-//         case 2: colour = BLUE; break; // Fixed colour
-//         case 3: colour = rainbow(map(i, -angle, angle, 0, 127)); break; // Full spectrum blue to red
-//         case 4: colour = rainbow(map(i, -angle, angle, 70, 127)); break; // Green to red (high temperature etc)
-//         case 5: colour = rainbow(map(i, -angle, angle, 127, 63)); break; // Red to green (low battery etc)
-//         default: colour = GREEN; break; // Fixed colour
-//       }
-//       tft.fillTriangle(x0, y0, x1, y1, x2, y2, colour);
-//       tft.fillTriangle(x1, y1, x2, y2, x3, y3, colour);
-//       //text_colour = colour; // Save the last colour drawn
-//     }
-//     else // Fill in blank segments
-//     {
-//       tft.fillTriangle(x0, y0, x1, y1, x2, y2, RED);
-//       tft.fillTriangle(x1, y1, x2, y2, x3, y3, RED);
-//     }
-//   }
-//   // Convert value to a string
-//   char buf[10];
-//   byte len = 2; if (value > 99) len = 3;if (value > 999) len = 4;
-//   dtostrf(value, len, 0, buf);
-//   buf[len] = ' '; buf[len] = 0; // Add blanking space and terminator, helps to centre text too!
-//   // Set the text colour to default
-//   tft.setTextSize(1);
-
-//   if(value>9){
-//   tft.setTextColor(CYAN,RED);
-//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
-//   tft.print(buf);}
-//   if(value==100){
-//   dtostrf(value, 3, 0, buf);
-//   buf[3] = ' '; buf[3] = 0; // Add blanking space and terminator, helps to centre text too!
-//   // Set the text colour to default
-//   tft.setTextColor(ORANGE,RED);
-//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
-//   tft.print(buf);
-//   delay(1000);
-//   tft.setTextColor(RED,RED);
-//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
-//   tft.print(buf);
-//   }
-//   else if(value<10){
-//   tft.setTextColor(colour,RED);
-//   tft.setCursor(x-25,y-10);tft.setTextSize(3);
-//   tft.print(buf);}
-
-  
-//   tft.setTextColor(CYAN,RED);
-  
-//   tft.setCursor(x-20,y+55);tft.setTextSize(1);
-//   tft.print(units); // Units display
-  
-//   // Calculate and return right hand side x coordinate
-//   // return x + r;
-// }
-//========================================================================
 
 bool isNumber(double number){       
         char item[20];
@@ -660,39 +587,6 @@ bool isNumber(double number){
 } 
 
 
-
-// unsigned int rainbow(byte value)
-// {
-//   // Value is expected to be in range 0-127
-//   // The value is converted to a spectrum colour from 0 = blue through to 127 = red
-
-//   byte red = 0; // Red is the top 5 bits of a 16 bit colour value
-//   byte green = 0;// Green is the middle 6 bits
-//   byte blue = 0; // Blue is the bottom 5 bits
-//   byte quadrant = value / 32;
-
-//   if (quadrant == 0) {
-//     blue = 31;
-//     green = 2 * (value % 32);
-//     red = 0;
-//   }
-//   if (quadrant == 1) {
-//     blue = 31 - (value % 32);
-//     green = 63;
-//     red = 0;
-//   }
-//   if (quadrant == 2) {
-//     blue = 0;
-//     green = 63;
-//     red = value % 32;
-//   }
-//   if (quadrant == 3) {
-//     blue = 0;
-//     green = 63 - 2 * (value % 32);
-//     red = 31;
-//   }
-//   return (red << 11) + (green << 5) + blue;
-// }
 
 double reserve(int height){
   const double tankDiameter = 61.5; // Diameter of the tank in inches
