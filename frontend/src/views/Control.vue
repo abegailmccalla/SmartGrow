@@ -145,7 +145,7 @@ watch(led,(controls)=>{
 
     ID = setTimeout(()=>{
         const message =
-JSON.stringify({"type":"controls","brightness":controls.brightness,"leds":controls.nodes,"color": controls.color});
+JSON.stringify({"type":"controls","brightness":controls.brightness,"leds":7,"color": controls.color});
         Mqtt.publish("620154701_sub",message); // Publish to a topic subscribed to by the hardware
     },1000)
 });

@@ -51,6 +51,9 @@
 #define DHTTYPE DHT22 // define the type of sensor
 
 #define fanPin 17
+#define heatPin 16
+#define pumpPin 18
+
 
 #define trig1Pin  2
 #define echo1Pin  36
@@ -114,13 +117,15 @@ int soilmoisturepercent=0;
 int soilMoistureValue2 = 0;
 int soilmoisturepercent2 =0;
 
+int fiveMinuteDelay = 0;
+
 uint32_t runTime = -99999;       // time for next update
 int reading1 = 0; // Value to be displayed
 int d = 0; // Variable used for the sinewave test waveform
 boolean alert = 0;
 int8_t ramp = 1;
 int tesmod =0;
-long duration, radarValue, radarValue2;
+long duration1, duration2, radarValue1, radarValue2, distance1, distance2;
 double waterheight, fertilizerheight;
 
 char TempCelciusFahrenheit[6];
@@ -206,7 +211,10 @@ void setup() {
   pinMode(echo1Pin, INPUT);
   pinMode(trig2Pin, OUTPUT);
   pinMode(echo2Pin, INPUT);
+
   pinMode(fanPin, OUTPUT);
+  pinMode(heatPin, OUTPUT);
+  pinMode(pumpPin, OUTPUT);
   
 
   LEDS.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
@@ -233,21 +241,21 @@ void loop() {
 
 
             digitalWrite(trig1Pin, LOW);
-            delayMicroseconds(5);
+            delayMicroseconds(2);
             digitalWrite(trig1Pin, HIGH);
             delayMicroseconds(10);
             digitalWrite(trig1Pin, LOW);
 
-            duration = pulseIn(echo1Pin, HIGH);
+            duration1 = pulseIn(echo1Pin, HIGH);
 
-
-            radarValue = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
-
+            distance1 = (duration1*.0343)/2; 
+            // radarValue = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
+            delay(50);
            
-            waterheight = 100 - radarValue;
+            waterheight = 18 - distance1;
 
-            Serial.print("Water Level: ");
-            Serial.println(waterheight);
+            // Serial.print("Water Level: ");
+            // Serial.println(waterheight);
 
             digitalWrite(trig2Pin, LOW);
             delayMicroseconds(5);
@@ -255,16 +263,17 @@ void loop() {
             delayMicroseconds(10);
             digitalWrite(trig2Pin, LOW);
 
-            duration = pulseIn(echo2Pin, HIGH);
+            duration2 = pulseIn(echo2Pin, HIGH);
 
 
-            radarValue2 = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
-
+            // radarValue2 = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
+            distance2 = (duration2*.0343)/2; 
+            delay(50);
            
-            fertilizerheight = 100 - radarValue2;
+            fertilizerheight = 100 - distance2;
 
-            Serial.print("Fertilizer Level: ");
-            Serial.println(fertilizerheight);
+            // Serial.print("Fertilizer Level: ");
+            // Serial.println(fertilizerheight);
 
   vTaskDelay(1000 / portTICK_PERIOD_MS);  
   
@@ -293,23 +302,61 @@ void vUpdate( void * pvParameters )  {
 
       if(fanState){
         digitalWrite(fanPin, HIGH);
+        Serial.println("Fan ON");
       }else{
         digitalWrite(fanPin, LOW);
+        Serial.println("Fan OFF");
       }
+      if(heatState){
+        digitalWrite(heatPin, HIGH);
+        Serial.println("Heater ON");
+      }else{
+        digitalWrite(heatPin, LOW);
+        Serial.println("Heater OFF");
+      }
+      if(pumpState){
+        digitalWrite(pumpPin, HIGH);
+        Serial.println("Pump ON");
+        delay(2500);
+        digitalWrite(pumpPin, LOW);
+        Serial.println("Pump OFF");
+        pumpState=false;
+        fiveMinuteDelay = getTimeStamp() + 300;
+      }else{
+        digitalWrite(pumpPin, LOW);
+        Serial.println("Pump OFF");
+      }
+      if(getTimeStamp() >= fiveMinuteDelay && fiveMinuteDelay != 0){
+        if(round(((soilmoisturepercent + soilmoisturepercent2)/2) * 100) / 100.0 < 25){
+           digitalWrite(pumpPin, HIGH);
+        Serial.println("Pump ON");
+        delay(2500);
+        digitalWrite(pumpPin, LOW);
+        Serial.println("Pump OFF");
+        pumpState=false;
+        fiveMinuteDelay = getTimeStamp() + 300;
+        }else{
+          digitalWrite(pumpPin, LOW);
+        Serial.println("Pump OFF");
+        fiveMinuteDelay=0;
+        }
+      }
+
+
 
             
 
         soilMoistureValue = analogRead(analogPin);  //put Sensor insert into soil
         soilmoisturepercent = map(soilMoistureValue, AirValue, WaterValue, 0, 100);
 
-        Serial.print("First Soil Moisture: ");
-        Serial.println(soilmoisturepercent);
+        // Serial.print("First Soil Moisture: ");
+        // Serial.println(soilmoisturepercent);
 
         soilMoistureValue2 = analogRead(analogPin2);  //put Sensor insert into soil
         soilmoisturepercent2 = map(soilMoistureValue2, AirValue, WaterValue, 0, 100);
 
-        Serial.print("Second Soil Moisture: ");
-        Serial.println(soilmoisturepercent2);
+        // Serial.print("Second Soil Moisture: ");
+        // Serial.println(soilmoisturepercent2);
 
         // sensors_event_t temp_event, pressure_event;
         // bmp_pressure->getEvent(&pressure_event);
@@ -318,23 +365,23 @@ void vUpdate( void * pvParameters )  {
         t = dht.readTemperature();
         hi = dht.computeHeatIndex(t, h);
 
-        Serial.print("First Temperature: ");
-        Serial.println(t);
-        Serial.print("First Humidity: ");
-        Serial.println(h);
-        Serial.print("First Heat Index: ");
-        Serial.println(hi);
+        // Serial.print("First Temperature: ");
+        // Serial.println(t);
+        // Serial.print("First Humidity: ");
+        // Serial.println(h);
+        // Serial.print("First Heat Index: ");
+        // Serial.println(hi);
 
         h2 = dht2.readHumidity();
         t2 = dht2.readTemperature();
         hi2 = dht2.computeHeatIndex(t2, h2);
 
-        Serial.print("Second Temperature: ");
-        Serial.println(t2);
-        Serial.print("Second Humidity: ");
-        Serial.println(h2);
-        Serial.print("Second Heat Index: ");
-        Serial.println(hi2);
+        // Serial.print("Second Temperature: ");
+        // Serial.println(t2);
+        // Serial.print("Second Humidity: ");
+        // Serial.println(h2);
+        // Serial.print("Second Heat Index: ");
+        // Serial.println(hi2);
         // pa = pressure_event.pressure;
 
         // Serial.print(F("Approx air pressure = "));

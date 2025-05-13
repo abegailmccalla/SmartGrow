@@ -41,9 +41,9 @@
                                             <!-- <span class="text-red">{{ tempDiff }}</span> -->
                                         </v-row>
                                         <v-row class="d-flex align-center justify-space-between">
-                                            <v-card-text class="text-red">{{ cropSelected.highHumidity }} %</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.highHumidity}} %</v-card-text>
                                             <v-card-text class="text-h6">{{ humidity }}</v-card-text>
-                                            <v-card-text class="text-red">{{ cropSelected.lowHumidity }} %</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.lowHumidity}} %</v-card-text>
                                         </v-row>
                                         <v-row class="d-flex justify-space-between">
                                             <v-card-text>Heat Index</v-card-text>
@@ -52,9 +52,9 @@
                                             <!-- <span class="text-red">{{ tempDiff }}</span> -->
                                         </v-row>
                                         <v-row class="d-flex align-center justify-space-between">
-                                            <v-card-text class="text-red">{{ cropSelected.highHeatIndex }} °C</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.maxheatindex}} °C</v-card-text>
                                             <v-card-text class="text-h6">{{ heatindex }}</v-card-text>
-                                            <v-card-text class="text-red">{{ cropSelected.lowHeatIndex }} °C</v-card-text>
+                                            <v-card-text class="text-red">{{ cropSelected.minheatindex }} °C</v-card-text>
                                         </v-row>
                                        
                                     </v-card-text>
@@ -182,11 +182,12 @@ const tempChart = ref(null); // Chart object
 const HiChart = ref(null); // Chart object
 const altChart = ref(null); // Chart object
 const soilChart = ref(null); // Chart object
-const heightChart = ref(null); // Chart object  
+const heightChart = ref(null); // Chart object 
 let isCelsius = true; // Temperature units
 const hasSaved = false // Save status
 
 let moist = ref(10); // soil moisture
+let soilMoist = 200; // soil moisture
 let tankLevel = ref(10); // tank level
 const selected = ref([]); // Selected units
 const actuateMsg = ref({"type":"actuate","fan":false, "pump":false, "heater":false});
@@ -220,16 +221,48 @@ const temperature = computed(()=>{
         }
     }
 });
+
+
+function calculateHeatIndex(tempC, RH) {
+  // Step 1: Convert Celsius to Fahrenheit
+  const T = tempC * 9 / 5 + 32;
+
+  // Step 2: Calculate heat index in Fahrenheit using Rothfusz formula
+  let HI = -42.379 +
+           2.04901523 * T +
+           10.14333127 * RH -
+           0.22475541 * T * RH -
+           0.00683783 * T * T -
+           0.05481717 * RH * RH +
+           0.00122874 * T * T * RH +
+           0.00085282 * T * RH * RH -
+           0.00000199 * T * T * RH * RH;
+
+  // Low humidity adjustment
+  if (RH < 13 && T >= 80 && T <= 112) {
+    const adjustment = ((13 - RH) / 4) * Math.sqrt((17 - Math.abs(T - 95)) / 17);
+    HI -= adjustment;
+  }
+
+  // High humidity adjustment
+  else if (RH > 85 && T >= 80 && T <= 87) {
+    const adjustment = ((RH - 85) / 10) * ((87 - T) / 5);
+    HI += adjustment;
+  }
+
+  // Step 3: Convert back to Celsius
+  const HI_C = (HI - 32) * 5 / 9;
+
+  return HI_C;
+}
+
+
 const heatindex = computed(()=>{
     if(!!payload.value){
-        if(isCelsius){
-            heatDiff = Math.abs(payload.value.heatindex - cropSelected.heatindex).toFixed(2);
-            return `${payload.value.heatindex.toFixed(2)} °C`;
-
-        }else{
-            return `${convertToFahrenheit(payload.value.heatindex).toFixed(2)} °F`;
-        }
+        return `${calculateHeatIndex(payload.value.temperature, payload.value.humidity).toFixed(2)} °C`;
     }
+
+
 });
 const humidity = computed(()=>{
     if(!!payload.value){
@@ -237,22 +270,6 @@ const humidity = computed(()=>{
     return `${payload.value.humidity.toFixed(2)} %`;
     }
 });
-
-// const fanStatus = computed(()=>{
-//     if(!!payload.value){
-//         console.log(fanStatus);
-//         return payload.value.temperature > cropSelected.temperature;
-//     }
-//     console.log(fanStatus);
-
-//     return false;
-// });
-
-
-
-
-
-
 
 
 
@@ -352,12 +369,27 @@ const CropData = async () => {
     const data= await AppStore.getCropData();
     console.log(data);
     cropSelected.name = data[0].name.charAt(0).toUpperCase() + data[0].name.slice(1);
-    cropSelected.lowTemp = data[0].lowest_temperature.toFixed(2);
-    cropSelected.highTemp = data[0].highest_temperature.toFixed(2);
-    cropSelected.lowHumidity = data[0].lowest_humidity.toFixed(2);
-    cropSelected.highHumidity = data[0].highest_humidity.toFixed(2);
-    cropSelected.lowHeatIndex = data[0].lowest_heat_index.toFixed(2);
-    cropSelected.highHeatIndex = data[0].highest_heat_index.toFixed(2);
+    // cropSelected.lowTemp = data[0].lowest_temperature.toFixed(2);
+    cropSelected.lowTemp = data[0]['Min temperature'].toFixed(2);
+    // cropSelected.highTemp = data[0].highest_temperature.toFixed(2);
+    cropSelected.highTemp = data[0]['Max temperature'].toFixed(2);
+    // cropSelected.lowSoilMoisture = data[0].lowest_soil_moisture.toFixed(2);
+    // cropSelected.highSoilMoisture = data[0].highest_soil_moisture.toFixed(2);
+    cropSelected.lowSoilMoisture = data[0]['Min soil moisture'].toFixed(2);
+    cropSelected.highSoilMoisture = data[0]['Max soil moisture'].toFixed(2);
+
+    // cropSelected.lowHumidity = data[0].lowest_humidity.toFixed(2);
+    cropSelected.highHumidity = data[0]['Max humidity'].toFixed(2);
+    cropSelected.lowHumidity = data[0]['Min humidity'].toFixed(2);
+    // cropSelected.highHumidity = data[0].highest_humidity.toFixed(2);
+    // cropSelected.lowHeatIndex = data[0].lowest_heat_index.toFixed(2);
+    // cropSelected.highHeatIndex = data[0].highest_heat_index.toFixed(2);
+
+    cropSelected.maxheatindex = calculateHeatIndex(cropSelected.highTemp, cropSelected.highHumidity).toFixed(2);
+   
+    cropSelected.minheatindex = calculateHeatIndex(cropSelected.lowTemp, cropSelected.lowHumidity).toFixed(2);
+
+    console.log(cropSelected);
 
     
 
@@ -390,22 +422,6 @@ onBeforeUnmount(()=>{
 
 
 
-// watch(fanStatus,()=> {
-//     if(fanStatus.value){
-//         clearTimeout(ID);
-//         ID = setTimeout(()=>{
-//             const message = JSON.stringify({"type":"actuate","fan":true, "pump":false, "heater":false});
-//             Mqtt.publish("620154701_sub",message); // Publish to a topic subscribed to by the hardware
-//         },1000)
-//     }else{
-//         clearTimeout(ID);
-//         ID = setTimeout(()=>{
-//             const message = JSON.stringify({"type":"actuate","fan":false, "pump":false, "heater":false});
-//             Mqtt.publish("620154701_sub",message); // Publish to a topic subscribed to by the hardware
-//         },1000)
-//     }
-// });
-       
 
 watch(payload,(data)=> {
         if(points.value > 0){ points.value -- ; }
@@ -417,6 +433,8 @@ watch(payload,(data)=> {
     waterSlider.value = data.water;
     fertilizerSlider.value = data.fertilizer;
 
+    soilMoist = data.soilmoisture + 150;
+
     if (data.temperature > cropSelected.highTemp) {
         fanStatus = true;
         heaterStatus = false;
@@ -427,18 +445,33 @@ watch(payload,(data)=> {
         fanStatus = false;
         heaterStatus = false;
     }
-    if (data.soilmoisture < cropSelected.lowHumidity) {
+
+    if (data.soilmoisture < cropSelected.lowSoilMoisture) {
         pumpStatus = true;
-    } else if (data.soilmoisture > cropSelected.highHumidity) {
+    } else if (data.soilmoisture > cropSelected.highSoilMoisture) {
         pumpStatus = false;
     } else {
         pumpStatus = false;
     }
+    console.log("Soil Moisture: ", data.soilmoisture);
+    console.log("Water Level: ", data.water);
+    
+    if(data.water< 20){
+        alert("Water level is critically low");
+        pumpStatus = false;
+    }
+
+    if(data.fertilizer< 20){
+        alert("Fertilizer level is critically low");
+        pumpStatus = false;
+    }
+
 const newActuateMsg = { "type": "actuate", "fan": fanStatus, "pump": pumpStatus, "heater": heaterStatus };
 if (JSON.stringify(actuateMsg.value) !== JSON.stringify(newActuateMsg)) {
     actuateMsg.value = newActuateMsg;
     Mqtt.publish("620154701_sub", JSON.stringify(actuateMsg.value)); // Publish to a topic subscribed to by the hardware
     console.log("Actuate Message: ", actuateMsg.value);
+    pumpStatus = false;
 }
 
     
