@@ -107,7 +107,8 @@ class DB:
             msg = str(e)
             print("updateCrop error ",msg)
         else:
-            return result
+            print("updateCrop success")
+            return 
 
     def humidityMMAR(self,start, end):
         '''RETURNS MIN, MAX, AVG AND RANGE FOR HUMIDITY. THAT FALLS WITHIN THE START AND END DATE RANGE'''
