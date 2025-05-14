@@ -125,17 +125,17 @@
                         <v-row class="d-flex justify-center align-center px-4 pa-5">
                            <v-card-subtitle class="m-6 p-6">Fan</v-card-subtitle>
                            <v-icon size="70" color="primary" class="mdi-spin">mdi-fan</v-icon>
-                           <span class="status">{{ fanStatus ? 'Active' : 'Inactive' }}</span>
+                           <span class="status">{{ fanStatus.value ? 'Active' : 'Inactive' }}</span>
                         </v-row>
                         <v-row class="d-flex justify-center align-center px-4 pa-9">
                            <v-card-subtitle class="m-6 p-6">Heater</v-card-subtitle>
                            <v-icon size="70" color="primary">mdi-heat-wave</v-icon>
-                           <span class="status">{{ heaterStatus ? 'Active' : 'Inactive' }}</span>
+                           <span class="status">{{ heaterStatus.value ? 'Active' : 'Inactive' }}</span>
                         </v-row>
                         <v-row class="d-flex justify-center align-center px-4 pa-9">
                            <v-card-subtitle class="m-6 p-6">Irrigation</v-card-subtitle>
                            <v-icon size="70" color="primary">mdi-watering-can</v-icon>
-                           <span class="status">{{ pumpStatus ? 'Active' : 'Inactive' }}</span>
+                           <span class="status">{{ pumpStatus.value ? 'Active' : 'Inactive' }}</span>
                         </v-row>
                     </v-card-text>
                 </v-card>
@@ -191,9 +191,10 @@ let soilMoist = 200; // soil moisture
 let tankLevel = ref(10); // tank level
 const selected = ref([]); // Selected units
 const actuateMsg = ref({"type":"actuate","fan":false, "pump":false, "heater":false});
-let pumpStatus = false; // Pump status
-let heaterStatus = false; // Heater status
-let fanStatus = false; // Fan status
+let pumpStatus = reactive({value:false}); // Pump status
+let pumpStatusAlert = {alertedWater:false, alertedFertilizer:false}; // Pump status alert
+let heaterStatus = reactive({value:false}); // Heater status
+let fanStatus = reactive({value:false}); // Fan status
 
 
 const led = reactive({"brightness":255,"nodes":1,"color":{ r: 45, g: 120, b: 150, a: 1 }});
@@ -430,43 +431,47 @@ watch(payload,(data)=> {
         
     soilChart.value.series[0].points[0].update(data.soilmoisture);
 
-    waterSlider.value = data.water;
-    fertilizerSlider.value = data.fertilizer;
+    waterSlider.value = 26;
+    fertilizerSlider.value = 72;
 
     soilMoist = data.soilmoisture + 150;
 
     if (data.temperature > cropSelected.highTemp) {
-        fanStatus = true;
-        heaterStatus = false;
+        fanStatus.value = true;
+        heaterStatus.value = false;
     } else if (data.temperature < cropSelected.lowTemp) {
-        fanStatus = false;
-        heaterStatus = true;
+        fanStatus.value = false;
+        heaterStatus.value = true;
+        
     } else {
-        fanStatus = false;
-        heaterStatus = false;
+        fanStatus.value = false;
+        heaterStatus.value = false;
+        
     }
 
-    if (data.soilmoisture < cropSelected.lowSoilMoisture) {
-        pumpStatus = true;
-    } else if (data.soilmoisture > cropSelected.highSoilMoisture) {
-        pumpStatus = false;
+    if (data.soilmoisture < ((cropSelected.lowSoilMoisture / cropSelected.highSoilMoisture) * 100)) { 
+        pumpStatus.value = true;
     } else {
-        pumpStatus = false;
+         pumpStatus.value = false;
     }
     console.log("Soil Moisture: ", data.soilmoisture);
     console.log("Water Level: ", data.water);
     
     if(data.water< 20){
         alert("Water level is critically low");
-        pumpStatus = false;
+        pumpStatusAlert.alertedWater = true;
+        pumpStatus.value = false;
+        console.log(pumpStatusAlert.alertedWater);
     }
 
     if(data.fertilizer< 20){
         alert("Fertilizer level is critically low");
-        pumpStatus = false;
+        pumpStatusAlert.alertedFertilizer = true;
+        pumpStatus.value = false;
+        console.log(pumpStatusAlert.alertedFertilizer);
     }
 
-const newActuateMsg = { "type": "actuate", "fan": fanStatus, "pump": pumpStatus, "heater": heaterStatus };
+const newActuateMsg = { "type": "actuate", "fan": fanStatus.value, "pump": pumpStatus.value, "heater": heaterStatus.value };
 if (JSON.stringify(actuateMsg.value) !== JSON.stringify(newActuateMsg)) {
     actuateMsg.value = newActuateMsg;
     Mqtt.publish("620154701_sub", JSON.stringify(actuateMsg.value)); // Publish to a topic subscribed to by the hardware

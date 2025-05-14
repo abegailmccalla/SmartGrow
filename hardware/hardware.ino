@@ -50,7 +50,7 @@
 
 #define DHTTYPE DHT22 // define the type of sensor
 
-#define fanPin 17
+#define fanPin 21
 #define heatPin 16
 #define pumpPin 18
 
@@ -92,6 +92,7 @@
 // #define BLUE2RED 3
 // #define GREEN2RED 4
 // #define RED2GREEN 5
+
 
 
 double h=0;
@@ -186,8 +187,8 @@ void vUpdate( void * pvParameters );
 #include "foreCast.h"
 #endif
 
-#define analogPin A4
-#define analogPin2 A5
+#define analogPin A6
+#define analogPin2 A7
 
 
 
@@ -250,7 +251,7 @@ void loop() {
 
             distance1 = (duration1*.0343)/2; 
             // radarValue = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
-            delay(50);
+            delay(100);
            
             waterheight = 18 - distance1;
 
@@ -258,7 +259,7 @@ void loop() {
             // Serial.println(waterheight);
 
             digitalWrite(trig2Pin, LOW);
-            delayMicroseconds(5);
+            delayMicroseconds(2);
             digitalWrite(trig2Pin, HIGH);
             delayMicroseconds(10);
             digitalWrite(trig2Pin, LOW);
@@ -268,9 +269,9 @@ void loop() {
 
             // radarValue2 = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
             distance2 = (duration2*.0343)/2; 
-            delay(50);
+            delay(100);
            
-            fertilizerheight = 100 - distance2;
+            fertilizerheight = 18 - distance2;
 
             // Serial.print("Fertilizer Level: ");
             // Serial.println(fertilizerheight);
@@ -349,14 +350,14 @@ void vUpdate( void * pvParameters )  {
         soilMoistureValue = analogRead(analogPin);  //put Sensor insert into soil
         soilmoisturepercent = map(soilMoistureValue, AirValue, WaterValue, 0, 100);
 
-        // Serial.print("First Soil Moisture: ");
-        // Serial.println(soilmoisturepercent);
+        Serial.print("First Soil Moisture: ");
+        Serial.println(soilmoisturepercent);
 
         soilMoistureValue2 = analogRead(analogPin2);  //put Sensor insert into soil
         soilmoisturepercent2 = map(soilMoistureValue2, AirValue, WaterValue, 0, 100);
 
-        // Serial.print("Second Soil Moisture: ");
-        // Serial.println(soilmoisturepercent2);
+        Serial.print("Second Soil Moisture: ");
+        Serial.println(soilmoisturepercent2);
 
         // sensors_event_t temp_event, pressure_event;
         // bmp_pressure->getEvent(&pressure_event);
@@ -651,7 +652,7 @@ double reserve(int height){
 
 int percentage(int radarValue){
 
-    const int perc = (radarValue / 77.763) * 100;
+    const int perc = (radarValue / 18) * 100;
     if(perc < 0){
       return 0;
     }
